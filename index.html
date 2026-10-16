@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logistics Optimizer Explained</title>
+<meta name="description" content="An interactive walkthrough of how the Intelligent Logistics & Vehicle Routing Optimizer 2.0 plans deliveries: graphs, dynamic programming and machine learning.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="#top"><span class="dot"></span>Logistics Optimizer 2.0</a>
+  <nav aria-label="Sections">
+    <a href="#problem">Problem</a>
+    <a href="#workflow">How it works</a>
+    <a href="#demos">Try it</a>
+    <a href="#toolbox">Algorithms</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#trust">Testing</a>
+    <a href="#qa">Viva Q&amp;A</a>
+  </nav>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">B.Tech CSE · Major Project</p>
+      <h1>Intelligent Logistics &amp; Vehicle Routing Optimizer 2.0</h1>
+      <p class="lead">A delivery planner that decides <strong>who delivers what, in which order, on which road</strong>, using graph algorithms, dynamic programming and machine learning.</p>
+      <div class="cta">
+        <a class="btn primary" href="#workflow">See how it works</a>
+        <a class="btn ghost" href="#demos">Try the live demos</a>
+      </div>
+    </div>
+    <svg class="hero-art" viewBox="0 0 400 300" role="img" aria-label="A small road network with one highlighted delivery route">
+      <g stroke="#3F5A86" stroke-width="2">
+        <line x1="60" y1="150" x2="150" y2="60"/><line x1="60" y1="150" x2="150" y2="240"/>
+        <line x1="150" y1="60" x2="260" y2="110"/><line x1="150" y1="240" x2="260" y2="200"/>
+        <line x1="260" y1="110" x2="340" y2="150"/><line x1="260" y1="200" x2="340" y2="150"/>
+        <line x1="150" y1="60" x2="150" y2="240"/><line x1="260" y1="110" x2="260" y2="200"/>
+      </g>
+      <polyline class="route" points="60,150 150,60 260,110 340,150 260,200 150,240 60,150" fill="none" stroke="#1FA3AB" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#1FA3AB"><circle cx="150" cy="60" r="11"/><circle cx="260" cy="110" r="11"/><circle cx="340" cy="150" r="11"/><circle cx="260" cy="200" r="11"/><circle cx="150" cy="240" r="11"/></g>
+      <rect x="40" y="130" width="40" height="40" rx="8" fill="#E08A2E"/>
+      <text x="60" y="156" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">D</text>
+    </svg>
+  </div>
+</section>
+
+<section class="band" id="problem">
+  <div class="wrap">
+    <h2>The problem: a short route is not always a good route</h2>
+    <p class="sub">Imagine 3 warehouses, 20 customers and 5 vehicles. Someone has to answer five questions every day.</p>
+    <ol class="questions">
+      <li><span>1</span>Which depot should serve each customer?</li>
+      <li><span>2</span>Which packages go into which vehicle?</li>
+      <li><span>3</span>In what order should each vehicle visit its stops?</li>
+      <li><span>4</span>Which plan costs less and still arrives on time?</li>
+      <li><span>5</span>What if a road closes or a vehicle breaks down?</li>
+    </ol>
+    <div class="cards three">
+      <article class="card"><h3>Too many choices</h3><p>Just ordering 10 stops has over 3.6 million possible orders. Humans cannot check them all.</p></article>
+      <article class="card"><h3>Hard rules</h3><p>Vehicles have capacity limits and customers have deadlines. A plan that breaks a rule is useless.</p></article>
+      <article class="card"><h3>Changing roads</h3><p>Traffic changes travel time through the day, so yesterday's best route may be today's worst.</p></article>
+    </div>
+    <p class="note"><strong>Our answer:</strong> turn the roads into a graph, let machine learning estimate travel times, let algorithms choose the plan, and check every plan against the rules.</p>
+  </div>
+</section>
+
+<section id="workflow">
+  <div class="wrap">
+    <h2>How it works, step by step</h2>
+    <p class="sub">Follow one delivery request from the click on <em>Optimize</em> to the routes on the map. Use the numbers or the arrows.</p>
+    <div class="stepper" id="stepper">
+      <div class="steps" id="stepButtons" role="tablist" aria-label="Workflow steps"></div>
+      <div class="step-body" id="stepBody" aria-live="polite"></div>
+      <div class="step-nav">
+        <button class="btn small" id="prevStep">← Previous</button>
+        <span id="stepCount"></span>
+        <button class="btn small primary" id="nextStep">Next →</button>
+      </div>
+    </div>
+    <p class="note"><strong>Core idea:</strong> machine learning predicts <em>conditions</em>; DSA algorithms decide <em>deliveries</em>. Each part has one job, so each can be tested and replaced on its own.</p>
+  </div>
+</section>
+
+<section class="band" id="demos">
+  <div class="wrap">
+    <h2>Try the ideas yourself</h2>
+    <p class="sub">Four small demos built with the same ideas as the project. They are simplified so you can see what each algorithm does.</p>
+
+    <article class="demo" id="demo-dijkstra">
+      <header><span class="tag">Step 5 · Shortest path</span><h3>Dijkstra finds the cheapest road path</h3>
+      <p>Pick a start and a destination, then press <em>Step</em>. Dijkstra always visits the closest unvisited place next and updates its neighbours when it finds a shorter way.</p></header>
+      <div class="controls">
+        <label>From <select id="dFrom"></select></label>
+        <label>To <select id="dTo"></select></label>
+        <button class="btn small primary" id="dStep">Step →</button>
+        <button class="btn small" id="dBack">← Back</button>
+        <button class="btn small" id="dPlay">Auto-play</button>
+        <button class="btn small" id="dReset">Reset</button>
+      </div>
+      <div class="demo-grid">
+        <svg id="dSvg" viewBox="0 0 610 340" role="img" aria-label="Road graph used by the Dijkstra demo"></svg>
+        <div>
+          <p class="log" id="dLog" aria-live="polite"></p>
+          <ul class="legend"><li><i class="lg cur"></i>Being visited</li><li><i class="lg vis"></i>Done (shortest known)</li><li><i class="lg fro"></i>Reached, not final</li><li><i class="lg unv"></i>Not reached yet</li></ul>
+          <p class="small">Numbers under each place are the best distance in km found so far from the start (∞ = not reached).</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="demo" id="demo-tsp">
+      <header><span class="tag">Step 6 · Route order</span><h3>Why the nearest stop is not always best</h3>
+      <p>A van must visit every customer and return to the depot. A simple "go to the nearest customer" rule is compared with the exact answer from <strong>bitmask dynamic programming</strong>.</p></header>
+      <div class="controls">
+        <label>Customers <input type="range" id="tN" min="4" max="8" value="6"><output id="tNOut">6</output></label>
+        <button class="btn small primary" id="tNew">New random city</button>
+      </div>
+      <div class="demo-grid two">
+        <figure><svg id="tGreedy" viewBox="0 0 400 260" role="img" aria-label="Route found by the nearest-neighbour rule"></svg><figcaption id="tGreedyCap"></figcaption></figure>
+        <figure><svg id="tOpt" viewBox="0 0 400 260" role="img" aria-label="Optimal route found by dynamic programming"></svg><figcaption id="tOptCap"></figcaption></figure>
+      </div>
+      <p class="result" id="tResult" aria-live="polite"></p>
+      <h4>Bitmask view of the optimal route</h4>
+      <p class="small">One bit per customer: 1 means "already visited". The DP stores the best cost for every such set, so it never repeats work.</p>
+      <div class="mask-list" id="tMasks"></div>
+    </article>
+
+    <article class="demo" id="demo-capacity">
+      <header><span class="tag">Step 7 · Constraint check</span><h3>A plan must fit the vehicle</h3>
+      <p>Choose a vehicle and tick packages. A package can be light but bulky, so both weight <em>and</em> volume are checked.</p></header>
+      <div class="controls"><label>Vehicle <select id="cVeh"></select></label></div>
+      <div class="demo-grid two">
+        <div id="cPacks" class="packs"></div>
+        <div>
+          <div class="meter"><div class="meter-label"><span>Weight</span><span id="cWText"></span></div><div class="bar"><i id="cWBar"></i></div></div>
+          <div class="meter"><div class="meter-label"><span>Volume</span><span id="cVText"></span></div><div class="bar"><i id="cVBar"></i></div></div>
+          <p class="verdict" id="cVerdict" aria-live="polite"></p>
+          <p class="small">Illustrative capacities. In the project, an assignment like this is rejected or the packages are re-assigned to another vehicle.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="demo" id="demo-traffic">
+      <header><span class="tag">Step 4 · Machine learning</span><h3>Travel time changes the best road</h3>
+      <p>The ML model predicts travel time for each road from features like hour, weekday, weather and congestion. Those predictions become the edge weights. Move the slider to change the hour.</p></header>
+      <div class="controls"><label>Hour of day <input type="range" id="hHour" min="0" max="23" value="3"><output id="hOut"></output></label></div>
+      <div class="roads">
+        <div class="road" id="roadA"><h4>Road A: short city road</h4><p class="small">5 km</p><div class="bar"><i></i></div><strong class="mins"></strong></div>
+        <div class="road" id="roadB"><h4>Road B: longer ring road</h4><p class="small">8 km</p><div class="bar"><i></i></div><strong class="mins"></strong></div>
+      </div>
+      <p class="result" id="hResult" aria-live="polite"></p>
+      <p class="small">Illustrative formula for teaching, not the trained model. The real project trains Linear Regression, Ridge, Decision Tree and KNN models and uses the best one.</p>
+    </article>
+  </div>
+</section>
+
+<section id="toolbox">
+  <div class="wrap">
+    <h2>The algorithm toolbox</h2>
+    <p class="sub">Different problems and different sizes need different tools. <span class="chip exact">Exact</span> tools guarantee the best answer; <span class="chip heur">Heuristic</span> tools are fast and good, with no guarantee.</p>
+    <div class="cards four">
+      <article class="card"><span class="chip exact">Exact</span><h3>Dijkstra</h3><p>Cheapest path from one place to all others (non-negative weights).</p><p class="cx">O((V+E) log V)</p></article>
+      <article class="card"><span class="chip exact">Exact</span><h3>A* search</h3><p>Dijkstra with a compass: a heuristic guides the search toward the target.</p><p class="cx">Depends on heuristic</p></article>
+      <article class="card"><span class="chip exact">Exact</span><h3>Floyd-Warshall</h3><p>All pairs of places at once. Good for small networks.</p><p class="cx">O(V³)</p></article>
+      <article class="card"><span class="chip exact">Exact</span><h3>Bitmask DP</h3><p>Best stop order for small routes by remembering visited sets.</p><p class="cx">O(n²·2ⁿ)</p></article>
+      <article class="card"><span class="chip exact">Exact</span><h3>2D Knapsack DP</h3><p>Which packages fit by weight and volume.</p><p class="cx">O(N·W·V)</p></article>
+      <article class="card"><span class="chip exact">Exact*</span><h3>Branch &amp; Bound</h3><p>Searches routes but drops any branch that cannot beat the best so far.</p><p class="cx">Worst case O(n!)</p></article>
+      <article class="card"><span class="chip heur">Heuristic</span><h3>Clarke-Wright</h3><p>Starts with one route per customer, then merges routes that save the most distance.</p><p class="cx">Fast, not optimal</p></article>
+      <article class="card"><span class="chip heur">Heuristic</span><h3>2-Opt</h3><p>Swaps two roads to remove detours from an existing route.</p><p class="cx">Local optimum</p></article>
+    </div>
+    <p class="small">* Exact only when the search is exhaustive enough to prove optimality.</p>
+  </div>
+</section>
+
+<section class="band" id="architecture">
+  <div class="wrap">
+    <h2>Architecture: who does what</h2>
+    <p class="sub">Five parts talk to each other over simple, well-defined interfaces.</p>
+    <div class="arch">
+      <div class="node ui"><strong>React dashboard</strong><span>Map, forms, visualizers</span></div>
+      <div class="arrow" aria-hidden="true">⇅ HTTP / JSON</div>
+      <div class="node api"><strong>FastAPI backend</strong><span>Validation and REST endpoints</span></div>
+      <div class="arrow" aria-hidden="true">⇅</div>
+      <div class="arch-row">
+        <div class="node opt"><strong>Optimizer</strong><span>Python DSA modules, C++ engine for heavy parts</span></div>
+        <div class="node ml"><strong>ML predictor</strong><span>scikit-learn travel-time models</span></div>
+        <div class="node db"><strong>Database</strong><span>SQLAlchemy with SQLite</span></div>
+      </div>
+    </div>
+    <p class="small">Leaflet only <em>draws</em> routes on the map. It does not solve the routing problem.</p>
+  </div>
+</section>
+
+<section id="trust">
+  <div class="wrap">
+    <h2>How we know it works</h2>
+    <p class="sub">A route can look perfect on a map and still break a deadline. So the project checks itself.</p>
+    <div class="cards three">
+      <article class="card"><h3>Unit and API tests</h3><p>Pytest suites cover graph algorithms, DP, Branch and Bound, constraint cases and the REST endpoints.</p></article>
+      <article class="card"><h3>Brute-force comparison</h3><p>For small inputs, the exact solver is compared with checking every possible order. The demo above does the same check.</p></article>
+      <article class="card"><h3>Benchmarks and what-if</h3><p>Algorithms are compared on the same data by runtime, cost and explored states. Closing a road or breaking a vehicle re-plans the routes.</p></article>
+    </div>
+    <p class="note"><strong>Honest claims:</strong> exact solvers give optimal answers only for the sizes they handle. Heuristic results are never called globally optimal.</p>
+  </div>
+</section>
+
+<section class="band" id="qa">
+  <div class="wrap narrow">
+    <h2>Viva questions, answered simply</h2>
+    <details><summary>Why use a graph?</summary><p>Roads connect places with a cost (distance or time). A graph stores exactly that, so path algorithms can search it.</p></details>
+    <details><summary>Why Dijkstra and also A*?</summary><p>Dijkstra finds cheapest paths from one place to everywhere. A* is faster for one start and one target because its heuristic steers the search.</p></details>
+    <details><summary>Why bitmask DP?</summary><p>The best way to finish a route depends only on which customers are visited and where you are. Storing that as a bitmask lets us reuse sub-answers: exact, but exponential, so only for small routes.</p></details>
+    <details><summary>Why also Clarke-Wright and 2-Opt?</summary><p>Exact methods get too slow as customers grow. These give good routes quickly and can be compared against the exact answer on small cases.</p></details>
+    <details><summary>Why combine ML and DSA?</summary><p>ML estimates a changing number (travel time). Graph algorithms use that number to compute paths. The optimizer then coordinates all deliveries and rules.</p></details>
+    <details><summary>Why C++ if the backend is Python?</summary><p>C++ can speed up selected heavy algorithms such as bitmask DP. Python handles APIs, validation, ML and orchestration.</p></details>
+    <details><summary>How do you prove correctness?</summary><p>Automated tests, comparison with brute force on small cases, and reproducible benchmarks. This shows correctness on tested cases, not for every possible input.</p></details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <h3>Team</h3>
+      <p>Nishant Tiwari (6605586)<br>Nisha Kumari (6605603)<br>Jiya Naz (6606445)</p>
+      <p>Project guide: Aarshi Gupta</p>
+    </div>
+    <div>
+      <h3>Stack</h3>
+      <p>Python · FastAPI · SQLAlchemy · React · TypeScript · Tailwind CSS · Leaflet · scikit-learn · C++</p>
+      <p><a href="https://github.com/Nishant-tiwari29/major-project">github.com/Nishant-tiwari29/major-project</a></p>
+    </div>
+    <div>
+      <h3>License</h3>
+      <p>MIT. This page is a teaching walkthrough with simplified demos; the full application is in the repository.</p>
+    </div>
+  </div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
